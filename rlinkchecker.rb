@@ -29,30 +29,30 @@ INFO
   exit(0)
 end
 
-extlinks = []
+allLinks = []
+uniqueLinks = []
 result = {}
 final = []
-@totalPages  = -1
-@totalLinks  = -1
+totalPages  = -1
 
 begin
   Anemone.crawl(target, :discard_page_bodies => true, :remember_external_links => true) do |anemone|
     @t1 = Time.now.strftime("%m/%d/%y at %r" )
     puts @t1 + ": Processing pages..."
     anemone.on_every_page do |page|
-      @totalPages  += 1
+      totalPages  += 1
       page.links.each { |link|
+        uniqueLinks.push(link) unless uniqueLinks.include?(link)
         result =  { :page_url => page.url, :link => link.to_s, :code => "Error", :errors => '' }
-        extlinks.push(result) unless extlinks.detect { |x| x[:link] == link.to_s }
-        @totalLinks  += 1
+        allLinks.push(result) #unless allLinks.detect { |x| x[:link] == link.to_s }
       }
-      @uniqueLinks = extlinks.count
     end
     
     anemone.after_crawl do |z|
-      puts Time.now.strftime("%m/%d/%y at %r" ) + ": Processing unique links..."
+      puts "Total Pages Processed: " "#{totalPages}"
+      puts Time.now.strftime("%m/%d/%y at %r" ) + ": Processing all links..."
       
-      extlinks.each {|link|
+      allLinks.each {|link|
         begin
           uri = URI.parse(link[:link])
           req = Net::HTTP::Head.new(uri.path)
@@ -70,10 +70,12 @@ begin
       puts  @t2 + ": Complete! "
     end
   end
-  
+  #puts uniqueLinks.count
+  #puts allLinks.count
+  #puts totalLinks
   File.open("#{output}" + "#{filename}.txt", "w") do |f|
     f.puts "Results for Target:\t" + "Started At:\t" + "Completed At:\t" + "Pages Processed:\t" + "Links Processed:\t" +"Unique Links:\t"
-    f.puts "#{target}\t" + "#{@t1}\t" + "#{@t2}\t" + "#{@totalPages}\t" + "#{@totalLinks}\t" + "#{@uniqueLinks}"
+    f.puts "#{target}\t" + "#{@t1}\t" + "#{@t2}\t" + "#{totalPages}\t" + "#{allLinks.count}\t" + "#{uniqueLinks.count}"
     f.puts ""
     f.puts "Response Code\t" + "Parent Page\t" + "Link\t" + "Errors\t"
     f.puts final
