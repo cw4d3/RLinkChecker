@@ -5,7 +5,7 @@ RLinkChecker
 ```ruby
 ruby rlinkchecker.rb [file output path] <filename> <url>
 ```
-If you supply a file output path, don't forget the trailing "/"
+If you supply a file output path, don't forget the trailing "/".
     
 **Synopsis:**
 
@@ -14,7 +14,7 @@ If you supply a file output path, don't forget the trailing "/"
   Parent page, errors, and scan statistics are also recorded. It's recommended to import the
   generated report into a spreadsheet to better view the results.
 
-**Example:***
+**Example:**
 ```
 ruby rlinkchecker.rb /Users/johnsnow/Desktop/ myfilename http://tar.get
 ```
