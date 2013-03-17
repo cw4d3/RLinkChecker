@@ -7,6 +7,7 @@ require 'rubygems'
 gem 'anemone', '=0.4.0.1'
 require 'anemone'
 require 'net/http'
+require 'cgi'
 
 target = URI(ARGV.last)
 filename  = (ARGV[-2]) if (ARGV[-2]) =~ /^\w.*/
@@ -44,20 +45,20 @@ begin
       totalPages  += 1
       page.links.each { |link|
         uniqueLinks.push(link) unless uniqueLinks.include?(link)
-        result =  { :page_url => page.url, :link => link.to_s, :code => "Error", :errors => '' }
+        result =  { :page_url => page.url, :link => CGI::unescape(link.to_s), :code => "Error", :errors => '' }
         allLinks.push(result) #unless allLinks.detect { |x| x[:link] == link.to_s }
       }
     end
     
     anemone.after_crawl do |z|
       puts "Total Pages Processed: " "#{totalPages}"
+      puts "Links Queued: " "#{allLinks.count}"
       puts Time.now.strftime("%m/%d/%y at %r" ) + ": Processing all links..."
       
       allLinks.each {|link|
         begin
           uri = URI.parse(link[:link])
           req = Net::HTTP::Head.new(uri.path)
-          
           http = Net::HTTP.new(uri.host, uri.port)
           http.use_ssl = true if link[:link] =~ /^https/
           res = http.request(req)
