@@ -8,6 +8,7 @@ gem 'anemone', '=0.4.0.1'
 require 'anemone'
 require 'net/http'
 require 'cgi'
+require 'colorize'
 
 target = URI(ARGV.last)
 filename  = (ARGV[-2]) if (ARGV[-2]) =~ /^\w.*/
@@ -40,7 +41,7 @@ totalPages  = -1
 begin
   Anemone.crawl(target, :discard_page_bodies => true, :remember_external_links => true) do |anemone|
     @t1 = Time.now.strftime("%m/%d/%y at %r" )
-    puts @t1 + ": Processing pages..."
+    puts @t1.green + ": Processing pages...".green
     anemone.on_every_page do |page|
       totalPages  += 1
       page.links.each { |link|
@@ -51,9 +52,9 @@ begin
     end
     
     anemone.after_crawl do |z|
-      puts "Total Pages Processed: " "#{totalPages}"
-      puts "Links Queued: " "#{allLinks.count}"
-      puts Time.now.strftime("%m/%d/%y at %r" ) + ": Processing all links..."
+      puts "Total Pages Processed: ".yellow + "#{totalPages}"
+      puts "Links Queued: ".yellow + "#{allLinks.count}"
+      puts Time.now.strftime("%m/%d/%y at %r" ).green + ": Processing all links...".green
       
       allLinks.each {|link|
         begin
@@ -69,7 +70,7 @@ begin
           final.push "#{link[:code]}\t" + "#{link[:page_url]}\t" + "#{link[:link]}\t" + "#{link[:errors]}\t"
       }
       @t2 = Time.now.strftime("%m/%d/%y at %r" ) 
-      puts  @t2 + ": Complete! "
+      puts  @t2.green + ": Complete! ".green
     end
   end
   #puts uniqueLinks.count
