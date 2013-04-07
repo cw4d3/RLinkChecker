@@ -50,7 +50,7 @@ begin
         result =  { :page_url => page.url, :link => CGI::unescape(link.to_s), :code => "Error",
                     :depth => page.depth, :size => '', :response_time => '', :headers => '', :errors => ''
                   }
-        allLinks.push(result) #unless allLinks.detect { |x| x[:link] == link.to_s }
+        allLinks.push(result)
       }
     end
     
@@ -87,9 +87,7 @@ begin
       
     end
   end
-  #puts uniqueLinks.count
-  #puts allLinks.count
-  #puts totalLinks
+  
   File.open("#{output}" + "#{filename}.txt", "w") do |f|
     f.puts "Results for Target:\t" + "Started At:\t" + "Completed At:\t" + "Pages Processed:\t" + "Pages With Links:\t" + "Links Processed:\t" + "Unique Links:\t"
     f.puts "#{target}\t" + "#{@t1}\t" + "#{@t2}\t" + "#{totalPages}\t" + "#{pagesWithLinks.count}\t" + "#{allLinks.count}\t" + "#{uniqueLinks.count}"
