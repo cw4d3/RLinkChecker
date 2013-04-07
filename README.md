@@ -1,6 +1,14 @@
 RLinkChecker
 ============
 
+**Installation**
+This program requires a specific version of the Anemone gem. Install the gem from GitHub using the version `pigeonworks` forked and modified,
+so as to allow for the remembering of exernal links:
+```
+gem install specific_install
+gem specific_install -l https://github.com/pigeonworks/anemone.git
+```
+
 **Usage:**
 ```ruby
 ruby rlinkchecker.rb [file output path] <filename> <url>
