@@ -58,7 +58,7 @@ begin
     end
     
     anemone.after_crawl do |z|
-      #count total number of pages with links for scan feedback below
+      #count total number of pages with links
       allLinks.each { |h| pagesWithLinks[h[:page_url]] += 1 }
       pagesWithLinks = Hash[pagesWithLinks.map {|key,value| [key,value.to_s] }]
       
@@ -72,7 +72,7 @@ begin
       allLinks.each {|link|
         pbar.increment
         begin
-          # establish connection to link host and get response
+          # establish connection to host, get response
           uri = URI.parse(link[:link])
           req = Net::HTTP::Head.new(uri.path)
           http = Net::HTTP.new(uri.host, uri.port)
