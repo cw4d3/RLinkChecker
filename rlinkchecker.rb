@@ -64,15 +64,22 @@ begin
       #count total number of pages with links
       allLinks.each { |h| pagesWithLinks[h[:page_url]] += 1 }
       pagesWithLinks = Hash[pagesWithLinks.map {|key,value| [key,value.to_s] }]
+
+      #copy the allLinks array so we can work with it and not skew original stats
+      allLinksResult = allLinks.dup
+
+      #find the set of unique links from the copied array
+      uniqueResult = allLinksResult.uniq! {|u| u[:link]}
       
-      puts "Total Pages Processed: ".yellow + "#{totalPages}"
+      puts "\nTotal Pages Processed: ".yellow + "#{totalPages}"
       puts "Total Pages With Links: ".yellow + "#{pagesWithLinks.count}"
-      puts "Links Queued: ".yellow + "#{allLinks.count}"
+      puts "Total Links: ".yellow + "#{allLinks.count}"
+      puts "Unique Links Queued: ".yellow + "#{uniqueLinks.count}"
       puts Time.now.strftime("%m/%d/%y at %r" ).green + ": Processing queued links...".green
       
-      pbar = ProgressBar.create(:title => "Progress", :format => '%a |%b>>%i| %p%% %t', :total => allLinks.count)
+      pbar = ProgressBar.create(:title => "Progress", :format => '%a |%b>>%i| %p%% %t', :total => uniqueResult.count)
       
-      allLinks.each {|link|
+      uniqueResult.each {|link|
         pbar.increment
         begin
           # establish connection to host, get response
