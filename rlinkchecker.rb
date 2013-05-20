@@ -33,12 +33,14 @@ INFO
   exit(0)
 end
 
-allLinks = []
-uniqueLinks = []
-result = {}
-final = []
-totalPages  = 0
-pagesWithLinks = Hash.new(0)
+allLinks = []                 #array of hashes of all pages and all links
+uniqueLinks = []              #array of only unique links
+result = {}                   #hash to store page info -- get pushed into allLinks
+uniqueResult = []             #same as allLinks, but only unique links
+final = []                    #the final array that gets written to file
+totalPages  = 0               #counts total pages processed
+pagesWithLinks = Hash.new(0)  #hash used to count the number of pages that contain links
+$stdout.sync = true
 
 begin
   Anemone.crawl(target, :discard_page_bodies => true, :remember_external_links => true) do |anemone|
@@ -48,6 +50,7 @@ begin
     # process all the pages and pull out all links
     anemone.on_every_page do |page|
       totalPages += 1
+      print "\r#{totalPages} "
       page.links.each { |link| # create an array of hashes to hold each link's data
         uniqueLinks.push(link) unless uniqueLinks.include?(link)
         result =  { :page_url => page.url, :link => CGI::unescape(link.to_s), :code => "Error",
@@ -57,7 +60,7 @@ begin
       }
     end
     
-    anemone.after_crawl do |z|
+    anemone.after_crawl {
       #count total number of pages with links
       allLinks.each { |h| pagesWithLinks[h[:page_url]] += 1 }
       pagesWithLinks = Hash[pagesWithLinks.map {|key,value| [key,value.to_s] }]
@@ -89,6 +92,10 @@ begin
         rescue Exception => ex
           link[:errors] = ex.message
         end
+          #check to make sure we aren't causing server overload
+          if res.code =~ /50[1-9]/
+            puts "Page: #{link[:page_url]}\t".red + "Link: #{link[:link]}\t".red + "Code: #{link[:code]}".red
+          end
           # push all the info into the final array
           final.push  "#{link[:code]}\t" + "#{link[:page_url]}\t" + "#{link[:link]}\t" +
                       "#{link[:depth]}\t" + "#{link[:size]}\t" + "#{link[:response_time]}\t" +
@@ -96,7 +103,7 @@ begin
       }
       @t2 = Time.now.strftime("%m/%d/%y at %r" ) 
       puts  @t2.green + ": Complete! ".green
-    end
+    }
   end
   
   # after everything is complete, open a file and write the results
